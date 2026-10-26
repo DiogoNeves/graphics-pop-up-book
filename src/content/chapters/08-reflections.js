@@ -49,7 +49,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `A chrome sphere sits among colourful objects that circle around it. Each moment, six cameras at its centre photograph the scene to build a cube map, and the card beside it shows those six views unfolded into a cross; drag to turn the view and match each reflection to its face.`,
+      text: `A chrome sphere sits among colourful objects that circle around it. Each moment, six cameras at its centre photograph the scene to build a cube map, and the card beside it shows those six views unfolded into a cross; drag the shapes around the ball and find each reflection on its face of the cross.`,
     },
     {
       type: 'sources',

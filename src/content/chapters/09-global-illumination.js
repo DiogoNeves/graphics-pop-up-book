@@ -50,7 +50,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `A Cornell box, split into flat patches, is lit by a real radiosity solver. Pull the tab to add light bounces one at a time, starting from direct light only, and watch the shadows fill in and the red and green walls tint the white surfaces.`,
+      text: `A Cornell box, split into flat patches, is lit by a real radiosity solver. Pull the tab to add light bounces one at a time, starting from direct light only, and watch the shadows fill in and this box's red and blue walls tint the white surfaces.`,
     },
     {
       type: 'sources',

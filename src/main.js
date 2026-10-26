@@ -63,3 +63,4 @@ setTimeout(() => book.goTo(start), 900);
 // Debug handle for the console.
 window.__book = book;
 window.__rig = rig;
+window.__render = () => pipeline.render();

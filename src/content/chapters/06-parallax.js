@@ -49,7 +49,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `The pop-up brick tile is flat underneath. Switch between normal mapping, simple parallax and parallax occlusion mapping, then drag to tilt and orbit the tile and watch how convincingly the bricks seem to stand out.`,
+      text: `The pop-up brick tile is flat underneath. Press the button to switch between normal mapping, simple parallax and parallax occlusion mapping, then drag to tilt the tile and watch how convincingly the bricks seem to stand out.`,
     },
     {
       type: 'sources',

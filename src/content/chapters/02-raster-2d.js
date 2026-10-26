@@ -48,7 +48,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `Drag the two pins on the pop-up pegboard to move the ends of a line. The square pegs chosen by Bresenham's algorithm rise up and light, one per step, while a thin thread shows the perfect mathematical line they are approximating.`,
+      text: `Drag the two pins on the pop-up pegboard to move the ends of a line. The square pegs chosen by Bresenham's algorithm rise up and light, one per step, while a thin thread shows the perfect mathematical line they are approximating. Press the button to add a third pin and fill a triangle instead.`,
     },
     {
       type: 'sources',

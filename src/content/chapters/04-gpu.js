@@ -50,7 +50,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `Two pop-up screens race to paint the same picture. On the CPU side a single worker colours one pixel at a time; on the GPU side a crowd of workers colours many pixels at once. Pull the tab to restart the race.`,
+      text: `Two pop-up screens race to paint the same picture. On the CPU side four big cores each colour one pixel at a time; on the GPU side 64 smaller cores colour a whole block of pixels at once. Pull the tab to restart the race.`,
     },
     {
       type: 'sources',

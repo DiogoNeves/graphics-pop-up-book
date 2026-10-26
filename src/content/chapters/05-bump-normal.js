@@ -48,7 +48,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `The pop-up tile is completely flat, but a normal map makes its bricks look raised. Drag the paper sun to move the light, flip the switch to turn the normal map on and off, and turn the tile edge-on to see that it really is flat.`,
+      text: `The pop-up tile is completely flat, but a normal map makes its bricks look raised. Drag the paper sun to move the light, press the buttons to turn the normal map on and off and to turn the tile edge-on, and see that it really is flat.`,
     },
     {
       type: 'sources',

@@ -52,7 +52,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `The pop-up oscilloscope plays a Tennis for Two-style rally: a glowing dot arcs over the net, leaving a phosphor trail. Click the screen to turn it into a raster TV showing a Pong-like game, drawn row by row with visible scanlines.`,
+      text: `The pop-up oscilloscope plays a Tennis for Two-style rally: a glowing dot arcs over the net, leaving a phosphor trail. Press a controller's red button to hit the ball back when it is on that side. Click the oscilloscope to turn it into a raster TV showing a Pong-like game, drawn row by row with visible scanlines, and slide the tab to slow the beam down and watch it draw.`,
     },
     {
       type: 'sources',

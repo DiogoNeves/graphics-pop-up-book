@@ -48,7 +48,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `The pop-up shows a chunky, flat-shaded 3D object, an eye with its viewing pyramid, and a little screen card where the object is rasterised into big, visible pixels. Drag to rotate the object, and click the screen card to switch between the colour picture and the depth buffer, where each pixel's shade shows how far away that bit of surface is.`,
+      text: `The pop-up shows a chunky, flat-shaded 3D object, an eye with its viewing pyramid, and a little screen card where the object is rasterised into big, visible pixels. Drag to rotate the object, and press the button or click the screen card to switch between the colour picture and the depth buffer, where each pixel's shade shows how far away that bit of surface is.`,
     },
     {
       type: 'sources',

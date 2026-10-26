@@ -49,7 +49,7 @@ export default {
     },
     {
       type: 'tryit',
-      text: `Click any pixel on the paper screen to fire a ray from the eye: watch it strike a sphere, send a shadow ray to the light and a reflection ray onwards, then colour the pixel. Or start the scan and watch the whole picture fill in, pixel by pixel.`,
+      text: `Click any pixel on the paper screen to fire a ray from the eye: watch it strike a sphere, send a shadow ray to the light and a reflection ray onwards, then colour the pixel. Or press the button to start a scan and watch the whole picture fill in, pixel by pixel.`,
     },
     {
       type: 'sources',
