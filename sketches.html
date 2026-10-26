@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sketch preview</title>
+    <style>
+      body { margin: 0; padding: 16px; background: #d8ccb4; font: 14px Georgia, serif; }
+      main { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+      figure { margin: 0; background: #f4ecdb; padding: 8px; }
+      figure canvas { width: 100%; display: block; }
+      figcaption { margin-top: 4px; color: #6b5f55; }
+    </style>
+  </head>
+  <body>
+    <main id="grid"></main>
+    <script type="module">
+      import { loadFonts } from '/src/pages/fonts.js';
+      import { renderSketch } from '/src/pages/layout.js';
+      import { spreads } from '/src/content/index.js';
+      await loadFonts();
+      const only = new URLSearchParams(location.search).get('chapter');
+      for (const s of spreads) {
+        if (only && s.id !== only) continue;
+        for (const b of s.blocks ?? []) {
+          if (b.type !== 'figure') continue;
+          const fig = document.createElement('figure');
+          fig.appendChild(renderSketch(b.sketch));
+          const cap = document.createElement('figcaption');
+          cap.textContent = `${s.number} · ${b.sketch} — ${b.caption ?? ''}`;
+          fig.appendChild(cap);
+          document.getElementById('grid').appendChild(fig);
+        }
+      }
+    </script>
+  </body>
+</html>

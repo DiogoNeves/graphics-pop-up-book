@@ -241,6 +241,25 @@ function drawSources(layout, items) {
   });
 }
 
+// Render one sketch on its own canvas (used by the sketch preview page).
+export function renderSketch(id, width = 1000) {
+  const layout = new PageLayout(width + MARGIN_L + MARGIN_R);
+  layout.y = 0;
+  drawSketch(layout, { sketch: id }, { figures: 0 });
+  const canvas = document.createElement('canvas');
+  canvas.width = layout.width;
+  canvas.height = Math.ceil(layout.y);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (const op of layout.ops) {
+    ctx.save();
+    op(ctx, canvas);
+    ctx.restore();
+  }
+  return canvas;
+}
+
 export function renderTextPage(spread, index, width, winH) {
   const layout = new PageLayout(width);
   const state = { figures: 0 };
