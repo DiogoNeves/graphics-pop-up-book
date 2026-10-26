@@ -305,7 +305,6 @@ export default function create(ctx) {
   // ---- caption and mode button ----
   const label = labelCard('', { w: 3.0, h: 0.3, color: palette.paper, px: 96, font: `italic 400 54px ${FONT.body}` });
   label.position.set(0, 0.015, 1.1);
-  group.add(ctx.fold.rise(label, { start: 0.45, end: 0.85 }));
   let labelText = '';
   function setLabel(text) {
     if (text === labelText) return;

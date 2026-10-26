@@ -222,9 +222,9 @@ export default function create(ctx) {
   const cornerDirs = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) =>
     S.clone().addScaledVector(right, (sx * SW) / 2).addScaledVector(up, (sy * SH) / 2).sub(E),
   );
-  let reach = (D + 0.7) / ds; // a little past the teapot...
-  for (const c of cornerDirs) reach = Math.min(reach, maxReach(E, c)); // ...but on the page
-  reach = Math.max(reach, 1.05);
+  // Just past the screen corners: enough to read as a pyramid without crossing the scene.
+  let reach = 1.3;
+  for (const c of cornerDirs) reach = Math.min(reach, maxReach(E, c));
   const yAxis = new THREE.Vector3(0, 1, 0);
   const rods = [];
   const rodLen = [];

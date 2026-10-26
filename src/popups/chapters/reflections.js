@@ -214,7 +214,7 @@ export default function create(ctx) {
     const col = cubeTexture(cubeRT.texture, dir).rgb;
     const tag = texture(faceLabelTexture(face.label), uv());
     const m = new THREE.MeshBasicNodeMaterial();
-    m.colorNode = mix(col, tag.rgb, tag.a);
+    m.colorNode = col;
     return m;
   }
 
@@ -267,7 +267,6 @@ export default function create(ctx) {
 
   const caption = labelCard('cube map', { w: 0.74, h: 0.24, color: palette.cream, px: 96, font: `italic 500 58px ${FONT.body}` });
   caption.position.set(NET_X + 1.5 * PITCH, 0.0125, NET_Z - PITCH);
-  group.add(ctx.fold.rise(caption, { start: 0.86, end: 1 }));
 
   // ---- orbit toggle ----
   let orbiting = true;

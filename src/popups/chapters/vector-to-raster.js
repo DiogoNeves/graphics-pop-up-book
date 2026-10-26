@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import { flat, unlit, palette, labelCard, screen, button, pullTab, clamp01, lerp, smooth, easeOutBack, FONT } from '../kit.js';
+import { flat, unlit, palette, screen, button, pullTab, clamp01, lerp, smooth, easeOutBack } from '../kit.js';
 
 // Chapter 1 pop-up, "Pong & Oscilloscopes": an oscilloscope playing a Tennis for Two style
 // game (vector display) that morphs into a television playing a Pong style game (raster
@@ -11,7 +11,7 @@ const SW = 256; // screen canvas in px (the plane is 1.6 x 1.2 units)
 const SH = 192;
 const SCR = { w: 1.6, h: 1.2, x: -0.35, y: 1.0, z: 0.035 };
 const BODY_Y = 0.12; // the body stands on little feet
-const SCOPE = { w: 2.5, h: 1.7, d: 1.0 };
+const SCOPE = { w: 2.5, h: 1.9, d: 1.2 };
 const TV = { w: 2.95, h: 1.86, d: 1.15 };
 const SWITCH_TIME = 1.3; // seconds for power-off, morph, power-on
 
@@ -43,7 +43,6 @@ const DIGITS = [
 const FADE = Array.from({ length: 101 }, (_, i) => `rgba(0,0,0,${(i / 100).toFixed(2)})`);
 const DASH = [6, 6];
 const NO_DASH = [];
-const LABELS = ['Vector: the beam draws lines', 'Raster: the beam scans rows'];
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const clampAbs = (v, m) => Math.max(-m, Math.min(m, v));
@@ -88,7 +87,6 @@ export default function create(ctx) {
   let partsFold = 0; // fold progress of the knobs, bezels and antenna
   let hovered = false;
   let hoverGlow = 0;
-  let labelHop = 0;
   let beamPhase = 0; // where the beam is in its refresh cycle, 0..1
   let demoPhase = 0; // slow guide marker shown when the beam runs at full speed
   let fadeAcc = 0;
@@ -99,9 +97,9 @@ export default function create(ctx) {
   group.add(device);
 
   const cream = new THREE.Color(palette.cream);
-  const scopeCol = new THREE.Color(palette.blue).lerp(new THREE.Color(palette.grey), 0.55);
+  const scopeCol = new THREE.Color('#8c9094'); // grey instrument finish
   const tvCol = new THREE.Color(palette.orange).lerp(new THREE.Color(palette.red), 0.3);
-  const scopePlateCol = scopeCol.clone().lerp(cream, 0.22);
+  const scopePlateCol = new THREE.Color('#a9adb0');
   const tvPlateCol = tvCol.clone().lerp(cream, 0.3);
 
   const inkMat = flat(palette.ink);
@@ -151,7 +149,7 @@ export default function create(ctx) {
   const ringHole = new THREE.Path();
   ringHole.absarc(0, 0, 0.585, 0, TAU, true);
   ring.holes.push(ringHole);
-  const ringMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(ring, { depth: 0.09, bevelEnabled: false, curveSegments: 20 }), inkMat);
+  const ringMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(ring, { depth: 0.24, bevelEnabled: false, curveSegments: 24 }), inkMat);
   part(scopeParts, 'front', SCR.x, SCR.y, -0.02).add(ringMesh);
 
   const frameShape = rrShape(new THREE.Shape(), 1.82, 1.42, 0.26);
@@ -175,14 +173,58 @@ export default function create(ctx) {
     return k;
   };
 
-  // Oscilloscope controls: two big knobs, two small ones and a green power lamp.
-  part(scopeParts, 'front', 0.62, 1.32, -0.02).add(makeKnob(true, inkMat));
-  part(scopeParts, 'front', 0.62, 0.88, -0.02).add(makeKnob(true, inkMat));
-  part(scopeParts, 'front', 0.98, 1.32, -0.02).add(makeKnob(false, flat(palette.red)));
-  part(scopeParts, 'front', 0.98, 0.88, -0.02).add(makeKnob(false, flat(palette.yellow)));
+  // Oscilloscope front panel: a graticule over the tube, a column of control knobs,
+  // input jacks and a power lamp, like a 1950s laboratory scope.
+  const grat = document.createElement('canvas');
+  grat.width = SW;
+  grat.height = SH;
+  const gg = grat.getContext('2d');
+  gg.save();
+  gg.beginPath();
+  gg.arc(SW / 2, SH / 2, SH * 0.47, 0, TAU);
+  gg.clip();
+  gg.strokeStyle = 'rgba(190, 235, 210, 0.32)';
+  gg.lineWidth = 1;
+  for (let i = -5; i <= 5; i++) {
+    gg.beginPath();
+    gg.moveTo(SW / 2 + i * 17, 0);
+    gg.lineTo(SW / 2 + i * 17, SH);
+    gg.stroke();
+  }
+  for (let j = -4; j <= 4; j++) {
+    gg.beginPath();
+    gg.moveTo(0, SH / 2 + j * 17);
+    gg.lineTo(SW, SH / 2 + j * 17);
+    gg.stroke();
+  }
+  gg.restore();
+  const gratTex = new THREE.CanvasTexture(grat);
+  gratTex.colorSpace = THREE.SRGBColorSpace;
+  const gratMesh = new THREE.Mesh(new THREE.PlaneGeometry(SCR.w, SCR.h), unlit('#ffffff', { map: gratTex, transparent: true, depthWrite: false }));
+  gratMesh.userData.noShadow = true;
+  part(scopeParts, 'front', SCR.x, SCR.y, SCR.z + 0.012).add(gratMesh);
+
+  const knobCol = [0.58, 0.98];
+  [1.62, 1.22].forEach((y) => knobCol.forEach((x) => part(scopeParts, 'front', x, y, -0.02).add(makeKnob(true, inkMat))));
+  [0.86].forEach((y) => knobCol.forEach((x) => part(scopeParts, 'front', x, y, -0.02).add(makeKnob(false, inkMat))));
+  const jackGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.07, 10).rotateX(Math.PI / 2).translate(0, 0, 0.035);
+  const jackHoleGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.02, 8).rotateX(Math.PI / 2).translate(0, 0, 0.075);
+  const brassMat = flat('#c9a24a');
+  knobCol.forEach((x) => {
+    const jack = part(scopeParts, 'front', x, 0.46, -0.02);
+    jack.add(new THREE.Mesh(jackGeo, brassMat), new THREE.Mesh(jackHoleGeo, inkMat));
+  });
   const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.08, 10).rotateX(Math.PI / 2).translate(0, 0, 0.04), unlit(palette.phosphor));
   lamp.userData.noShadow = true;
-  part(scopeParts, 'front', 0.98, 0.5, -0.02).add(lamp);
+  part(scopeParts, 'front', 0.78, 1.9, -0.02).add(lamp);
+  // Ventilation slots along the top of the face.
+  const ventGeo = new THREE.BoxGeometry(0.05, 0.16, 0.03).translate(0, 0, 0.015);
+  const vents = part(scopeParts, 'front', -0.35, 1.9, -0.02);
+  for (let i = -5; i <= 5; i++) {
+    const v = new THREE.Mesh(ventGeo, inkMat);
+    v.position.x = i * 0.1;
+    vents.add(v);
+  }
 
   // Oscilloscope carry handle on the lid.
   const handle = part(scopeParts, 'top', 0, 0, -0.5);
@@ -280,9 +322,6 @@ export default function create(ctx) {
   );
 
   // ---------------------------------------------------------------- page furniture
-  const label = labelCard(LABELS[0], { w: 2.7, h: 0.3, px: 96, color: palette.cream, font: `italic 600 50px ${FONT.body}` });
-  label.position.set(0, 0.014, 0.64);
-  group.add(ctx.fold.rise(label, { start: 0.35, end: 0.8 }));
 
   const btn = button(ctx, {
     labels: ['Vector · Tennis for Two (1958)', 'Raster · Pong (1972)'],
@@ -297,6 +336,67 @@ export default function create(ctx) {
 
   const tab = pullTab(ctx, { x0: -1.15, x1: 1.15, z: 1.7, label: 'SLOW', color: palette.red });
   group.add(tab.group);
+
+  // Tennis for Two's hand controllers: an aluminium box with an angle knob on top and a
+  // hit button on the front, each on a coiled cable to the scope. The buttons hit the ball.
+  const controllers = new THREE.Group();
+  group.add(controllers);
+  let ctrlFold = 0;
+  ctx.fold.custom((e) => (ctrlFold = Math.max(0, e)), { start: 0.45, end: 0.85 });
+  const alu = flat('#c3c8cc');
+  const caseGeo = new THREE.BoxGeometry(0.46, 0.2, 0.34).translate(0, 0.1, 0);
+  const dialGeo = new THREE.CylinderGeometry(0.09, 0.1, 0.07, 12).translate(0, 0.235, -0.03);
+  const dialMarkGeo = new THREE.BoxGeometry(0.025, 0.02, 0.09).translate(0, 0.28, 0.0);
+  const hitGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.07, 10).rotateX(Math.PI / 2);
+  const hitMat = flat(palette.red);
+  const hitButtons = [];
+  for (const side of [-1, 1]) {
+    const c = new THREE.Group();
+    c.position.set(side * 1.28, 0, 0.8);
+    c.rotation.y = -side * 0.3;
+    c.add(new THREE.Mesh(caseGeo, alu));
+    const dial = new THREE.Group();
+    dial.position.z = -0.03;
+    dial.add(new THREE.Mesh(dialGeo, inkMat), new THREE.Mesh(dialMarkGeo, creamMat));
+    dial.children.forEach((m) => (m.position.z = 0.03));
+    dial.rotation.y = side * 0.7;
+    c.add(dial);
+    const hit = new THREE.Mesh(hitGeo, hitMat);
+    hit.position.set(0, 0.1, 0.2);
+    hit.userData.press = 0;
+    c.add(hit);
+    hitButtons.push(hit);
+    controllers.add(c);
+    ctx.interactive(c, {
+      onClick() {
+        hit.userData.press = 1;
+        hitBall(side);
+      },
+    });
+
+    // Coiled cable from the back of the box to the bottom corner of the scope's face.
+    const pts = [];
+    const a = new THREE.Vector3(side * 1.22, 0.07, 0.63);
+    const b = new THREE.Vector3(side * 0.98, 0.09, 0.16);
+    for (let i = 0; i <= 48; i++) {
+      const t = i / 48;
+      const p = a.clone().lerp(b, t);
+      const coil = Math.sin(t * Math.PI) * 0.045;
+      p.x += Math.cos(t * 30) * coil;
+      p.y += Math.sin(t * 30) * coil + Math.sin(t * Math.PI) * 0.02;
+      pts.push(p);
+    }
+    const cable = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, 0.018, 5), inkMat);
+    controllers.add(cable);
+  }
+
+  // A player's button sends the ball back over the net if it is on their side.
+  function hitBall(side) {
+    if (shown !== 0 || switchT >= 0) return;
+    if ((side < 0 && ball.x >= NET_X) || (side > 0 && ball.x < NET_X)) return;
+    ball.vx = -side * rand(80, 100);
+    ball.vy = -Math.sqrt(2 * GRAVITY * Math.max(8, ball.y - rand(28, 50)));
+  }
 
   function requestMode(i) {
     if (switchT < 0 && i !== target) {
@@ -651,7 +751,7 @@ export default function create(ctx) {
 
   return {
     group,
-    hint: 'Click the screen, then pull the SLOW tab',
+    hint: 'Click the scope to switch · press to hit',
     update(rawDt) {
       const dt = Math.min(Math.max(rawDt || 0, 0), 0.05);
 
@@ -663,8 +763,6 @@ export default function create(ctx) {
           shown = target;
           pg.fillStyle = '#000000';
           pg.fillRect(0, 0, SW, SH);
-          label.userData.setText(LABELS[shown]);
-          labelHop = 1;
           beamPhase = 0;
         }
         morph = lerp(morphFrom, target, smooth(clamp01((switchT - 0.2) / 0.6)));
@@ -678,9 +776,13 @@ export default function create(ctx) {
       }
 
       hoverGlow += ((hovered ? 1 : 0) - hoverGlow) * Math.min(1, dt * 10);
-      if (labelHop > 0) {
-        labelHop = Math.max(0, labelHop - dt * 3);
-        label.position.y = 0.014 + 0.12 * Math.sin(labelHop * Math.PI);
+      // Controllers belong to the oscilloscope: they tuck away while it is a television.
+      const ck = Math.max(1e-3, ctrlFold * clamp01(1 - 2 * morph));
+      controllers.scale.setScalar(ck);
+      controllers.visible = ck > 0.002;
+      for (const b of hitButtons) {
+        b.userData.press = Math.max(0, b.userData.press - dt * 5);
+        b.position.z = 0.2 - 0.04 * Math.sin(b.userData.press * Math.PI);
       }
 
       // SLOW tab: stretch the beam's refresh period (and slow the game down with it).

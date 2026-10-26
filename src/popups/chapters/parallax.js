@@ -226,7 +226,6 @@ export default function create(ctx) {
     w: 1.7, h: 0.22, color: palette.cream, px: 96, font: `italic 400 54px ${FONT.body}`,
   });
   caption.position.set(0, BASE_H / 2 + 0.014, 0.95);
-  disc.add(caption);
 
   // ---- swivel stand: yaw group → hinge (folds the frame) → swivel (tilts the tile) ----
   const yawGroup = new THREE.Group();

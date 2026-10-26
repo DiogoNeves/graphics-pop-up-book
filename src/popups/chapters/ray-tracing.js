@@ -371,13 +371,12 @@ export default function create(ctx) {
     font: `700 72px ${FONT.hand}`,
   });
   tag.position.set(0, 0.42, 0.04);
-  eyeRise.add(base, post, ball, tag);
+  eyeRise.add(base, post, ball);
   group.add(ctx.fold.rise(eyeRise, { start: 0.55, end: 0.9 }));
 
   // ---------- legend and button on the page ----------
   const legend = legendCard(1.42, 0.46);
   legend.position.set(-1.02, 0.01, 1.66);
-  group.add(ctx.fold.rise(legend, { start: 0.6, end: 0.95 }));
 
   // ---------- ray pool ----------
   const rays = new THREE.Group();

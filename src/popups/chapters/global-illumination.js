@@ -26,6 +26,7 @@ const LEVELS = 6; // bounces 0..5
 // Pivot heights: when folded, the walls stack flat on the floor (red, green, back+ceiling).
 const Y_RED = 0.012;
 const Y_GREEN = 0.05;
+const WALL_BLUE = '#2f6fe0'; // the right wall: red, blue and white room
 const Y_BACK = 0.088;
 
 // Two white blocks (centre on the floor, size, rotation about y).
@@ -311,14 +312,14 @@ export default function create(ctx) {
   // ---- materials ----
   const RHO_WHITE = [0.76, 0.73, 0.64];
   const RHO_RED = reflectance(palette.red, 1.08);
-  const RHO_GREEN = reflectance(palette.green, 1.3);
+  const RHO_GREEN = reflectance(WALL_BLUE, 1.3);
   const LIGHT = [16, 15.2, 13.6];
   const white = () => ({ rho: RHO_WHITE });
 
   const patchMat = new THREE.MeshBasicNodeMaterial({ vertexColors: true });
   const cardWhite = flat(palette.card);
   const cardRed = flat(palette.red);
-  const cardGreen = flat(palette.green);
+  const cardGreen = flat(WALL_BLUE);
 
   const P = new Patches();
   const meshes = [];
@@ -506,7 +507,7 @@ export default function create(ctx) {
   // ---- controls ----
   const label = labelCard('Bounces: 0', { w: 1.3, h: 0.32, color: palette.cream, px: 128 });
   label.position.set(0, 0.014, 0.68);
-  group.add(ctx.fold.rise(label, { start: 0.55, end: 0.9 }));
+  label.visible = false; // no printed text in the pop-ups
 
   const setLevel = (next) => {
     if (next === level) return;
@@ -544,9 +545,21 @@ export default function create(ctx) {
   g2.font = `600 56px ${FONT.title}`;
   g2.textAlign = 'center';
   g2.textBaseline = 'middle';
+  // One dot per bounce instead of numbers: more dots, more bounces.
   for (let i = 0; i < LEVELS; i++) {
-    const x = TAB_X0 + ((TAB_X1 - TAB_X0) * i) / (LEVELS - 1);
-    g2.fillText(String(i), ((x + stripW / 2) / stripW) * canvas.width, canvas.height / 2);
+    const x = ((TAB_X0 + ((TAB_X1 - TAB_X0) * i) / (LEVELS - 1) + stripW / 2) / stripW) * canvas.width;
+    if (i === 0) {
+      g2.lineWidth = 4;
+      g2.strokeStyle = palette.ink;
+      g2.beginPath();
+      g2.arc(x, canvas.height / 2, 12, 0, Math.PI * 2);
+      g2.stroke();
+    }
+    for (let k = 0; k < i; k++) {
+      g2.beginPath();
+      g2.arc(x + (k - (i - 1) / 2) * 22, canvas.height / 2, 8, 0, Math.PI * 2);
+      g2.fill();
+    }
   }
   const stripTex = new THREE.CanvasTexture(canvas);
   stripTex.colorSpace = THREE.SRGBColorSpace;

@@ -174,7 +174,6 @@ export default function create(ctx) {
     font: `italic 500 60px ${FONT.body}`,
   });
   caption.position.set(0, FOOT / 2, TH / 2 + 0.006);
-  framePivot.add(caption);
 
   // Axle pins at the left and right of the window: the tile tips about a horizontal axle
   // through its centre, so every point of it stays within TILE/2 of a centre ~1 above the page.

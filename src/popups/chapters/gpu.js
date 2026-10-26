@@ -160,8 +160,6 @@ export default function create(ctx) {
       w: 0.8, h: 0.28, standing: true, thickness: 0.012, color: accent, ink, px: 128,
       font: `600 80px ${FONT.title}`,
     });
-    label.position.set(0, TITLE_Y, CARD_T + 0.006);
-    pivot.add(label);
 
     // A low foot the card slots into, so it reads as a monitor on a stand.
     const foot = new THREE.Mesh(footGeo, bezelMat);
@@ -179,8 +177,7 @@ export default function create(ctx) {
     const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.03, 20), flat(palette.orange));
     disc.rotation.x = Math.PI / 2;
     g.add(disc);
-    const tt = textTexture(text, { width: 128, height: 128, font: `600 56px ${FONT.title}`, background: palette.yellow, color: palette.ink });
-    const face = new THREE.Mesh(new THREE.CircleGeometry(0.145, 20), flat('#ffffff', { map: tt.texture }));
+    const face = new THREE.Mesh(new THREE.CircleGeometry(0.145, 20), flat(text === '1st' ? palette.yellow : '#c8ccd0'));
     face.position.z = 0.017;
     g.add(face);
     const ribbonGeo = new THREE.BoxGeometry(0.08, 0.24, 0.012);
@@ -289,10 +286,8 @@ export default function create(ctx) {
   const noteFont = `italic 400 60px ${FONT.body}`;
   const cpuNote = labelCard('4 fast cores', { w: 1.3, h: 0.24, color: palette.paper, px: 96, font: noteFont });
   cpuNote.position.set(-SIDE_X, 0.013, 1.22);
-  group.add(ctx.fold.rise(cpuNote, { start: 0.6, end: 0.9 }));
   const gpuNote = labelCard('64 slower cores', { w: 1.3, h: 0.24, color: palette.paper, px: 96, font: noteFont });
   gpuNote.position.set(SIDE_X, 0.013, 1.22);
-  group.add(ctx.fold.rise(gpuNote, { start: 0.65, end: 0.95 }));
 
   // ---- RACE pull-tab (spring-loaded: it slides back when let go) ----
   let state = READY;
@@ -397,14 +392,14 @@ export default function create(ctx) {
     g.globalAlpha = 1;
     g.fillStyle = GAP;
     g.fillRect(0, 0, w, h);
-    g.font = RO_FONT;
-    g.textBaseline = 'middle';
-    g.textAlign = 'left';
+    // Progress bar instead of text: how much of the picture is done.
+    const pad = h * 0.28;
+    g.globalAlpha = 0.25;
     g.fillStyle = palette.phosphor;
-    g.fillText(`pixels: ${done}/${N}`, 18, h / 2);
-    g.textAlign = 'right';
+    g.fillRect(pad, pad, w - pad * 2, h - pad * 2);
+    g.globalAlpha = 1;
     g.fillStyle = mode === 2 ? palette.yellow : palette.phosphor;
-    g.fillText(mode === 0 ? 'READY' : `${(tenths / 10).toFixed(1)} s`, w - 18, h / 2);
+    g.fillRect(pad, pad, (w - pad * 2) * (done / N), h - pad * 2);
     mon.ro.refresh();
   }
 
