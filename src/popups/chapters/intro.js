@@ -33,10 +33,6 @@ export default function create(ctx) {
   spinner.add(teapot);
   group.add(ctx.fold.rise(spinner, { start: 0.35, end: 1 }));
 
-  const caption = labelCard('Martin Newell’s Utah teapot (1975)', { w: 2.4, h: 0.28, color: palette.paper, px: 96, font: `italic 400 52px ${FONT.body}` });
-  caption.position.set(0, 0.015, 1.35);
-  group.add(ctx.fold.rise(caption, { start: 0.6, end: 1 }));
-
   let look = 0;
   ctx.interactive(teapot, {
     onClick() {

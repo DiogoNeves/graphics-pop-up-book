@@ -1,13 +1,10 @@
-import { createPopupContext, labelCard, standingCard, flat, palette } from './kit.js';
+import { createPopupContext, standingCard, flat, palette } from './kit.js';
 
 const modules = import.meta.glob('./chapters/*.js', { eager: true });
 
 function placeholder(ctx, spread) {
   const group = new ctx.THREE.Group();
   const card = standingCard(ctx, { w: 2.4, h: 1.4, material: flat(palette.card), position: [0, 0, -0.4] });
-  const label = labelCard(spread.title, { w: 2.2, h: 0.5, standing: true, thickness: 0.01 });
-  label.position.set(0, 0.85, 0.02);
-  card.add(label);
   group.add(card);
   return { group, hint: 'Pop-up coming soon', update() {} };
 }

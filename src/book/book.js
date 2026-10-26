@@ -13,6 +13,12 @@ const smoothstep = (a, b, x) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
+// Pop-ups are not glued across the gutter like real paper ones, so they must be flat
+// before the turning page can reach them: the turning page's pop-up folds away while the
+// page is still in its first third, and the revealed pop-up stands up only once the page
+// has passed well beyond vertical (its bend makes the edge lead).
+const closing = (angle) => 1 - smoothstep(0.02 * Math.PI, 0.38 * Math.PI, angle);
+const opening = (angle) => smoothstep(0.62 * Math.PI, 0.98 * Math.PI, angle);
 
 // Spreads are indexed 0..n-1; -1 is the closed book. Leaf k separates spread k and k+1:
 // its front is the right page of spread k and its back is the left page of spread k+1.
@@ -203,11 +209,11 @@ export class Book {
     let theta = 0;
     if (turn?.kind === 'cover') {
       cover = turn.angle;
-      [Lt, Rt, leftIdx, rightIdx, rightU] = [0, T, 0, 0, cover / Math.PI];
+      [Lt, Rt, leftIdx, rightIdx, rightU] = [0, T, 0, 0, opening(cover)];
     } else if (turn?.kind === 'leaf') {
       leafK = turn.k;
       theta = turn.angle;
-      [Lt, Rt, leftIdx, rightIdx, rightU] = [leafK * dT, T - (leafK + 1) * dT, leafK, leafK + 1, theta / Math.PI];
+      [Lt, Rt, leftIdx, rightIdx, rightU] = [leafK * dT, T - (leafK + 1) * dT, leafK, leafK + 1, opening(theta)];
     } else if (this.current < 0) {
       cover = 0;
       [Lt, Rt, leftIdx, rightIdx, rightU] = [0, T, 0, 0, 0];
@@ -248,7 +254,7 @@ export class Book {
     this.rightFrame.position.set(W / 2, C + Rt + EPS, 0);
     const shown = new Set();
     this.placePopup(rightIdx, this.rightFrame, rightU, shown);
-    if (leafK >= 0) this.placePopup(leafK, this.leafFrame, 1 - theta / Math.PI, shown);
+    if (leafK >= 0) this.placePopup(leafK, this.leafFrame, closing(theta), shown);
     for (const popup of this.popups.values()) {
       if (!shown.has(popup) && popup.root.parent) popup.root.removeFromParent();
     }

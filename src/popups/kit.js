@@ -147,6 +147,68 @@ export function labelCard(text, { w = 1.2, h = 0.34, thickness = 0.025, standing
   return mesh;
 }
 
+// A flat card whose top face is drawn by draw(g, width, height, state) on a canvas — for
+// controls that show state with shapes instead of words. mesh.userData.redraw(state).
+export function iconCard(draw, { w = 0.6, h = 0.3, thickness = 0.05, color = palette.cream, px = 128 } = {}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(px * (w / h));
+  canvas.height = px;
+  const g = canvas.getContext('2d');
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  const redraw = (state) => {
+    g.fillStyle = color;
+    g.fillRect(0, 0, canvas.width, canvas.height);
+    draw(g, canvas.width, canvas.height, state);
+    texture.needsUpdate = true;
+  };
+  redraw(0);
+  const side = flat(color);
+  const face = flat('#ffffff', { map: texture });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, thickness, h), [side, side, face, side, side, side]);
+  mesh.userData.redraw = redraw;
+  return mesh;
+}
+
+// Double-headed arrow: "slide me".
+function drawSlideIcon(g, w, h) {
+  g.strokeStyle = g.fillStyle = palette.cream;
+  g.lineWidth = h * 0.09;
+  g.lineCap = 'round';
+  const y = h / 2;
+  const a = w * 0.2;
+  const b = w * 0.8;
+  const k = h * 0.2;
+  g.beginPath();
+  g.moveTo(a, y);
+  g.lineTo(b, y);
+  g.moveTo(a + k, y - k);
+  g.lineTo(a, y);
+  g.lineTo(a + k, y + k);
+  g.moveTo(b - k, y - k);
+  g.lineTo(b, y);
+  g.lineTo(b - k, y + k);
+  g.stroke();
+}
+
+// One dot per state, the current one filled.
+function drawStateDots(count, ink) {
+  return (g, w, h, state) => {
+    const r = h * 0.14;
+    const gap = r * 3.2;
+    const x0 = w / 2 - ((count - 1) * gap) / 2;
+    g.lineWidth = h * 0.06;
+    g.strokeStyle = g.fillStyle = ink;
+    for (let i = 0; i < count; i++) {
+      g.beginPath();
+      g.arc(x0 + i * gap, h / 2, r, 0, Math.PI * 2);
+      if (i === state) g.fill();
+      else g.stroke();
+    }
+  };
+}
+
 // A standing card hinged at its bottom edge, registered with the folder so it folds flat
 // backwards (away from the reader) when the page closes. Returns the pivot group; the card
 // mesh is pivot.userData.card.
@@ -181,8 +243,9 @@ export function screen(w, h, { px = 256, background = '#000000' } = {}) {
 // ---- controls ----
 
 // A paper pull-tab that slides along x at depth z on the page. value is 0..1 (snapped to
-// `steps` positions when steps > 1). Returns { group, get value, set(v) }.
-export function pullTab(ctx, { x0 = -1.2, x1 = 1.2, z = 1.75, label = 'PULL', value = 0, steps = 0, color = palette.red, onChange = () => {} } = {}) {
+// `steps` positions when steps > 1). It shows an arrow, never text (`label` is ignored).
+// Returns { group, get value, set(v) }.
+export function pullTab(ctx, { x0 = -1.2, x1 = 1.2, z = 1.75, value = 0, steps = 0, color = palette.red, onChange = () => {} } = {}) {
   const group = new THREE.Group();
   const slot = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0 + 0.24, 0.006, 0.09), flat('#3b322c'));
   slot.position.set((x0 + x1) / 2, 0.003, z);
@@ -194,7 +257,7 @@ export function pullTab(ctx, { x0 = -1.2, x1 = 1.2, z = 1.75, label = 'PULL', va
       group.add(tick);
     }
   }
-  const tab = labelCard(label, { w: 0.62, h: 0.3, thickness: 0.05, color, ink: palette.cream, px: 128 });
+  const tab = iconCard(drawSlideIcon, { w: 0.62, h: 0.3, thickness: 0.05, color });
   tab.position.set(x0, 0.03, z);
   group.add(tab);
 
@@ -233,10 +296,11 @@ export function pullTab(ctx, { x0 = -1.2, x1 = 1.2, z = 1.75, label = 'PULL', va
   return api;
 }
 
-// A flat push-button on the page that cycles through labels when clicked.
+// A flat push-button on the page that cycles through states when clicked. `labels` names
+// the states (passed to onChange) but is never printed: the button shows one dot per state.
 // Returns { mesh, get index, set(i) }.
 export function button(ctx, { labels = ['On', 'Off'], position = [0, 0, 1.75], w = 1.3, h = 0.34, color = palette.orange, ink = palette.ink, onChange = () => {} } = {}) {
-  const mesh = labelCard(labels[0], { w, h, thickness: 0.07, color, ink, px: 128 });
+  const mesh = iconCard(drawStateDots(labels.length, ink), { w: Math.min(w, 0.25 + labels.length * 0.18), h, thickness: 0.07, color });
   mesh.position.set(position[0], 0.035 + (position[1] ?? 0), position[2]);
   let index = 0;
   let pressed = 0;
@@ -247,7 +311,7 @@ export function button(ctx, { labels = ['On', 'Off'], position = [0, 0, 1.75], w
     },
     set(i, silent = false) {
       index = ((i % labels.length) + labels.length) % labels.length;
-      mesh.userData.setText(labels[index]);
+      mesh.userData.redraw(index);
       if (!silent) onChange(index, labels[index]);
     },
   };
