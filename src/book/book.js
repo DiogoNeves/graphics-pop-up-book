@@ -136,18 +136,35 @@ export class Book {
     }
   }
 
+  // Prepare the neighbouring spreads while the reader is on this one, one small step per
+  // idle moment, so turning a page doesn't build anything. Stops if a turn starts.
   prefetch() {
     const s = this.current;
-    const todo = [s + 1, s - 1].filter((i) => i >= 0 && i <= this.last);
-    const step = () => {
-      const i = todo.shift();
-      if (i === undefined || !this.idle) return;
-      this.getPopup(i);
-      this.getLeft(i);
-      this.getRight(i);
-      setTimeout(step, 60);
+    const steps = [];
+    for (const i of [s + 1, s - 1].filter((n) => n >= 0 && n <= this.last)) {
+      steps.push(() => this.getPopup(i), () => this.getLeft(i), () => this.getRight(i), () => this.warm(i));
+    }
+    const later = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 250 }) : setTimeout(fn, 30));
+    const run = () => {
+      if (!this.idle || this.current !== s || !steps.length) return;
+      steps.shift()();
+      later(run);
     };
-    setTimeout(step, 300);
+    later(run);
+  }
+
+  // Upload a spread's page textures and draw its pop-up once off screen, in its real place
+  // (so its lights and shadows count), so its first appearance mid-turn doesn't stall.
+  warm(i) {
+    for (const page of [this.getLeft(i), this.getRight(i)]) this.renderer.initTexture(page.texture);
+    const popup = this.getPopup(i);
+    if (!popup || popup.warmed || !this.warmup || popup.root.parent) return;
+    popup.warmed = true;
+    this.rightFrame.add(popup.root);
+    popup.fold.apply(1);
+    popup.update(0, performance.now() / 1000); // pop-ups with their own render targets draw them now
+    this.warmup();
+    popup.root.removeFromParent();
   }
 
   // What the pointer may interact with right now.

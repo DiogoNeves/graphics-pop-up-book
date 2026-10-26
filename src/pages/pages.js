@@ -45,6 +45,7 @@ export function makeLeftPage(spread, index, { W, H }) {
 
   const page = {
     material,
+    texture: tex,
     winH,
     maxScroll,
     scroll: 0,
@@ -104,6 +105,7 @@ export function makeRightPage(spread, index, { W, H }, hint) {
   const material = new THREE.MeshLambertNodeMaterial({ map: tex, flatShading: true });
   return {
     material,
+    texture: tex,
     dispose() {
       tex.dispose();
       material.dispose();

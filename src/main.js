@@ -34,6 +34,7 @@ const book = new Book({
   onChange: (i) => navbar?.update(i),
 });
 scene.add(book.group);
+book.warmup = () => pipeline.warmScene();
 navbar = createNavbar({ spreads, book, onReset: () => rig.reset() });
 navbar.update(book.target);
 new Interaction({ dom: renderer.domElement, camera, controls: rig.controls, book });

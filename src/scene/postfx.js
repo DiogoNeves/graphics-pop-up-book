@@ -31,5 +31,17 @@ export function createPipeline(renderer, scene, camera) {
 
   const shaded = color.mul(vec4(vec3(mix(float(1), occlusion, AO_STRENGTH)), 1));
   pipeline.outputNode = smaa(shaded);
+  // Draw the scene once into the scene pass's own target, off screen: this builds every
+  // shader, pipeline, shadow and texture upload the current scene needs. The next frame
+  // overwrites the target, so nothing of it is ever shown.
+  pipeline.warmScene = () => {
+    const target = renderer.getRenderTarget();
+    const mrt = renderer.getMRT();
+    renderer.setRenderTarget(scenePass.renderTarget);
+    renderer.setMRT(scenePass.getMRT());
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(target);
+    renderer.setMRT(mrt);
+  };
   return pipeline;
 }
