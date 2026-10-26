@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Pop-up History of Computer Graphics</title>
+    <meta name="description" content="An interactive 3D pop-up book about the history of computer graphics, rendered in the browser with WebGPU and three.js." />
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="loading">Opening the book…</div>
+    <nav id="bar" aria-label="Book navigation">
+      <button id="reset" class="icon" title="Reset view (R)" aria-label="Reset view">
+        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5" /></svg>
+      </button>
+      <span class="sep"></span>
+      <button id="prev" class="icon" title="Previous page (←)" aria-label="Previous page">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <div id="where">
+        <button id="toc" aria-haspopup="true" aria-expanded="false"><span id="toc-num"></span><span id="toc-title"></span></button>
+        <ol id="toc-list" hidden></ol>
+      </div>
+      <button id="next" class="icon" title="Next page (→)" aria-label="Next page">
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+      <span class="sep"></span>
+      <a id="wiki" class="icon wide" target="_blank" rel="noopener" title="Open the related Wikipedia article">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
+        <span>Wikipedia</span>
+      </a>
+    </nav>
+    <article id="a11y" class="sr-only" aria-live="polite"></article>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
