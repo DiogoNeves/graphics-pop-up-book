@@ -47,6 +47,17 @@ Check a single module for syntax errors and bad imports:
 node scripts/check.mjs src/popups/chapters/raster-2d.js
 ```
 
+## Demo video
+
+`scripts/make-demo.sh` rebuilds `media/demo.mp4` (about 45 seconds, 1080p, with sound). It needs the dev server on port 5183, Google Chrome and ffmpeg:
+
+```bash
+./scripts/make-demo.sh
+```
+
+- `scripts/record-demo.mjs` opens the book with `?capture`, where time only moves when the script says so. It plays a scripted timeline of real clicks, drags and scrolls, takes one screenshot per 1/30 s step, and logs when pages turn and buttons are clicked.
+- `scripts/make-soundtrack.mjs` synthesises an original soundtrack (pad, music-box arpeggio, bass, soft drums and a bell melody) and adds page-turn, pop-up and click sounds at the logged moments.
+
 ## How it works
 
 - `src/book/` builds the book: covers, page blocks and a bendable `Leaf` mesh used for every page. One leaf animates per turn; pop-ups ride on a frame that follows the bending page.

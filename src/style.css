@@ -49,3 +49,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #241d1a; col
   #bar .wide span { display: none; }
   #bar .wide { padding: 0; }
 }
+#capture-cursor { position: fixed; left: 0; top: 0; width: 34px; height: 34px; margin: -3px 0 0 -5px; pointer-events: none; z-index: 10; }
+#capture-cursor svg { width: 100%; height: 100%; fill: #fff; stroke: #1d1b1a; stroke-width: 1.4; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
+#capture-cursor i { position: absolute; left: 4px; top: 2px; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: rgba(255, 236, 160, 0.55); transform: scale(0); transition: transform 0.12s; }
+#capture-cursor.down i { transform: scale(1); }
+.capture #loading { display: none; }
