@@ -4,6 +4,8 @@ An interactive 3D pop-up book about how computers learned to draw, rendered live
 
 A flat-shaded book sits on a wooden table. It opens, and each spread tells one chapter of the story: the left page is a short, scrollable text with hand-drawn sketches, and the right page is a pop-up that stands up out of the paper and lets you play with the idea. Turning a page folds one pop-up away and unfolds the next, like a real pop-up book.
 
+**Open it: https://diogoneves.com/graphics-pop-up-book/**
+
 It is a demo of what is possible for education in the browser: no install, real-time 3D, and every technique on the pages running on the reader's own GPU.
 
 ## Chapters
@@ -26,6 +28,10 @@ The text was researched and then fact-checked by a separate pass against primary
 - **Scroll or drag** a left page to read it.
 - Pop-ups have their own pull-tabs, buttons and draggable pieces.
 - The bottom bar resets the view, turns pages, jumps to a chapter and opens the related Wikipedia article. Arrow keys turn pages; `R` resets the view.
+
+## Deploy
+
+Every push to `main` builds the site and publishes it to GitHub Pages (`.github/workflows/deploy.yml`).
 
 ## Run locally
 
