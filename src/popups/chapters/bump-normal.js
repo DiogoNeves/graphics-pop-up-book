@@ -243,14 +243,20 @@ export default function create(ctx) {
   disc.userData.noShadow = true;
   const rays = new THREE.Mesh(starGeometry(SUN_R * 0.85, RAY_R, 12, 0.025), unlit(palette.orange));
   rays.userData.noShadow = true;
-  const light = new THREE.PointLight(LIGHT_COLOR, 0, 6, 2);
-  light.position.set(0, 0, -0.12); // just behind the disc, shining towards the tile
-  head.add(disc, rays, light);
+  // The scene's shared pop-up light sits just behind the disc, shining towards the tile.
+  const lightAnchor = new THREE.Object3D();
+  lightAnchor.position.set(0, 0, -0.12);
+  head.add(disc, rays, lightAnchor);
+  const anchorPos = new THREE.Vector3();
   sunPivot.add(base, stick, head);
   group.add(ctx.fold.rise(sunPivot, { start: 0.3, end: 0.8 }));
   ctx.fold.custom(
     (e, t) => {
+      const light = ctx.pointLight;
+      if (!light) return;
+      light.color.set(LIGHT_COLOR);
       light.intensity = LIGHT_I * smooth(clamp01(t));
+      light.position.copy(light.parent.worldToLocal(lightAnchor.getWorldPosition(anchorPos)));
     },
     { start: 0.3, end: 0.8 },
   );

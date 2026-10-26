@@ -70,6 +70,11 @@ export class Book {
     this.leaf = new Leaf(W, H, [this.hidden, this.hidden], { segX: 24, segZ: 6, bend: 0.5 });
     this.group.add(this.rightPage.mesh, this.leftPage.mesh, this.leaf.mesh);
 
+    // One point light shared by the pop-ups (off unless a visible pop-up drives it), so the
+    // scene's set of lights never changes when a pop-up appears and nothing has to re-adjust.
+    this.popupLight = new THREE.PointLight('#ffffff', 0, 6, 2);
+    this.group.add(this.popupLight);
+
     this.rightFrame = new THREE.Group();
     this.leafFrame = new THREE.Group();
     this.group.add(this.rightFrame, this.leafFrame);
@@ -108,7 +113,7 @@ export class Book {
   getPopup(i) {
     if (i < 0 || i > this.last) return null;
     if (!this.popups.has(i)) {
-      const popup = createPopup(this.spreads[i], { renderer: this.renderer, scene: this.scene, camera: this.camera });
+      const popup = createPopup(this.spreads[i], { renderer: this.renderer, scene: this.scene, camera: this.camera, pointLight: this.popupLight });
       this.popups.set(i, popup);
     }
     return this.popups.get(i);
@@ -269,6 +274,7 @@ export class Book {
     }
 
     this.rightFrame.position.set(W / 2, C + Rt + EPS, 0);
+    this.popupLight.intensity = 0; // a shown pop-up that uses it turns it back on in fold.apply
     const shown = new Set();
     this.placePopup(rightIdx, this.rightFrame, rightU, shown);
     if (leafK >= 0) this.placePopup(leafK, this.leafFrame, closing(theta), shown);

@@ -331,7 +331,7 @@ export function button(ctx, { labels = ['On', 'Off'], position = [0, 0, 1.75], w
 
 // ---- context ----
 
-export function createPopupContext({ renderer, scene, camera }) {
+export function createPopupContext({ renderer, scene, camera, pointLight }) {
   const root = new THREE.Group();
   const inverse = new THREE.Matrix4();
   const localRay = new THREE.Ray();
@@ -342,6 +342,10 @@ export function createPopupContext({ renderer, scene, camera }) {
     scene,
     camera,
     root,
+    // A point light shared by all pop-ups (never add your own: changing the scene's lights
+    // makes everything re-adjust). The book turns it off each frame before fold.apply, so set
+    // its intensity, colour and position from a fold.custom step while you are shown.
+    pointLight,
     W: PAGE_W,
     H: PAGE_H,
     fold: new Folder(),
